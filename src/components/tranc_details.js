@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
 import {ToolTipPanel,TooltipPlace ,PreScreening, Key, Value, DelButton} from '../style'
+import moment from 'moment'
+// const capitalize_word = word => word.split("").map((el,elnum) => (elnum == 0) ? el.toUpperCase() : el).reduce((a,b) => a+b)
+
 export class Tranc_Details extends Component {
     constructor(props) {
         super(props)
@@ -7,7 +10,8 @@ export class Tranc_Details extends Component {
         this.state = {
             details : {},
             show : false,
-            eventhandler: undefined
+            eventhandler: undefined,
+            type:""
         }
     }
 
@@ -16,7 +20,8 @@ export class Tranc_Details extends Component {
             this.setState({
                 details: this.props.details,
                 show: this.props.show,
-                eventhandler : this.props.eventhandler
+                eventhandler : this.props.eventhandler,
+                type : this.props.type
             })
         }
     }
@@ -30,14 +35,16 @@ export class Tranc_Details extends Component {
     }
 
     static Capitalize_word = (word) =>{
-        return word.split("").map((el,elnum) => (elnum === 0) ? el.toUpperCase() : el);
+        return word.split("").map((el,elnum) => (elnum === 0) ? el.toUpperCase() : el).reduce((a,b) => a+b);
     }
 
     getDetails = () =>{
-        const { details } = this.state;
-        return Object.entries(details).map(([key,value],num) => {
-            var color = (key !== 'type') ? 'White' : (value === 'credit') ? 'Green' : (value == 'debit') ? 'Red' : 'Orange';
-            return <li key={num}><Key>{`${key.toLocaleUpperCase()} : `}</Key><Value color={color}>{Tranc_Details.Capitalize_word(String(value))}</Value></li>
+        const { details, type } = this.state;
+        return Object.entries(details).filter(([k,v]) => (k !== '__v')).map(([key,value],num) => {
+            key = Tranc_Details.Capitalize_word(key.replace('_',""));
+            value = (key === 'Date') ? value.split("T")[0] : Tranc_Details.Capitalize_word(String(value));
+            var color = (type === 'credit') ? '#98ee90' : (type == 'debit') ? 'Red' : 'Orange';
+            return <li key={num}><Key>{`${key} : `}</Key><Value color={color}>{value}</Value></li>    
         })
     }
     

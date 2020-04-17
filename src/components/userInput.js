@@ -2,6 +2,7 @@ import React, { Component, Children } from 'react'
 import { Credit, Debit, Subscription, Saving } from './Transaction'
 import '../style.css'
 import Typed from 'react-typed'
+
 class userInput extends Component{
 
     constructor(props) {
@@ -31,15 +32,40 @@ class userInput extends Component{
         this.change_descp = this.change_descp.bind(this);
         this.update_transc = this.update_transc.bind(this);
         this.update_after_del = this.update_after_del.bind(this);
+        this.updateAppUI = this.props.updateUI
     }
 
-    componentDidMount(){
+    reduceLog = (ref) => ref.current.log().map(el => el.amt).reduce*((a,b) => a+b);
+
+    updateCharts(){
+        this.allExpenseChart_ref.current.updateChartData({
+            labels : ['Debit','Subcription'],
+            datasets:[{
+                label: 'All Expenses',
+                data: this.allexpenseData(),
+                backgroundColor: ['Red','Orange'],
+                borderWidth: 1,
+                borderColor: '#777',
+                hoverBorderWidth:3,
+                hoverBorderColor:'black'
+            }],
+        });
+        this.debitChart_ref.current.updateChartData(this.d_ref.current.getTransaction(false));
+    }
+
+
+    updateTotalBalance(type){
+        let {total_balance,total_credit,total_debit} = this.state
         this.setState({
-            type_transc : this.props.type.toLowerCase(),
-            transc_amt: this.props.amt,
-            description: this.props.description
-        },()=>{console.log(this.state)});
-        console.log(this.props.children);
+                    total_balance : this.c_ref.current.total_amt() - this.d_ref.current.total_amt(),
+                    total_credit : this.c_ref.current.total_amt(),
+                    total_debit : this.d_ref.current.total_amt() 
+        },()=>{
+            console.log(JSON.stringify(this.state));
+            this.updateCharts();
+            const [total_balance_string,color_balance] = this.total_balance_assigner();
+            this.updateAppUI(total_balance_string,color_balance);
+        })
     }
 
     change_transc(event){
@@ -68,50 +94,40 @@ class userInput extends Component{
         return [(d_arr.length > 0) ? d_arr.reduce((a,b) => parseFloat(a)+parseFloat(b)) : 0 , (s_arr.length > 0) ? s_arr.reduce((a,b) => parseFloat(a)+parseFloat(b)) : 0]
     }
 
-    update_transc(event){
-        const {type_transc,transc_amt,description} = this.state
-        const transc_obj = {type:type_transc,amt:transc_amt,description:description};
+    update_transc(transc_obj){
+        const {type,amt,description,date} = transc_obj;
+        console.log(type,amt,description);
         console.log(`Object Created => ${JSON.stringify(transc_obj)}`);
-        if (type_transc === 'credit') {
+        if (type === 'credit') {
             transc_obj.id = this.credit_id++;
             this.c_ref.current.addtrans_log(transc_obj);
         }     
-        else if (type_transc === 'debit'){
+        else if (type === 'debit'){
             transc_obj.id = this.debit_id++;
             this.d_ref.current.addtrans_log(transc_obj);
         }
-        else if (type_transc === 'sub'){
+        else if (type === 'sub'){
             transc_obj.id = this.subs_id++;
             this.s_ref.current.addtrans_log(transc_obj);
         }
-        else if (type_transc === 'save'){
+        else if (type=== 'save'){
             transc_obj.id = this.saving_id++;
             this.save_ref.current.addtrans_log(transc_obj);
         }
         this.setState(prevState=>{
             return {
-                total_debit : prevState.total_debit + (type_transc === 'credit') ? 0 : parseFloat(transc_amt),
-                total_credit: prevState.total_credit + (type_transc === 'credit') ? parseFloat(transc_amt) : 0,
-                total_balance: (type_transc === 'credit') ? parseFloat(prevState.total_balance) + parseFloat(transc_amt) : (type_transc === 'save') ? parseFloat(prevState.total_balance) : parseFloat(prevState.total_balance) - parseFloat(transc_amt)  
+                total_debit : prevState.total_debit + (type === 'credit') ? 0 : parseFloat(amt),
+                total_credit: prevState.total_credit + (type === 'credit') ? parseFloat(amt) : 0,
+                total_balance: (type === 'credit') ? parseFloat(prevState.total_balance) + parseFloat(amt) : (type === 'save') ? parseFloat(prevState.total_balance) : parseFloat(prevState.total_balance) - parseFloat(amt)  
             }
         },()=>{
             console.log(`The total_balance is ${this.state.total_balance}`);
-            if(type_transc === 'debit' || type_transc === 'sub'){
-                console.log(this.allexpenseData());
-                this.allExpenseChart_ref.current.updateChartData({
-                    labels : ['Debit','Subcription'],
-                    datasets:[{
-                        label: 'All Expenses',
-                        data: this.allexpenseData(),
-                        backgroundColor: ['Red','Orange'],
-                        borderWidth: 1,
-                        borderColor: '#777',
-                        hoverBorderWidth:3,
-                        hoverBorderColor:'black'
-                    }],
-                });
-                this.debitChart_ref.current.updateChartData(this.d_ref.current.getTransaction(false));
+            if(type === 'debit' || type === 'sub'){
+                console.log(`Updating the charts after adding new transcations ${type}`);
+                this.updateCharts();
             }
+            const [total_balance_string,color_balance] = this.total_balance_assigner();
+            this.updateAppUI(total_balance_string,color_balance)
           });
 
     }
@@ -144,6 +160,8 @@ class userInput extends Component{
                 });
                 this.debitChart_ref.current.updateChartData(this.d_ref.current.getTransaction(false));
             }
+            const [total_balance_string,color_balance] = this.total_balance_assigner();
+            this.updateAppUI(total_balance_string,color_balance)
         })
     }
 
@@ -151,45 +169,23 @@ class userInput extends Component{
     
 
     render(){
-        const {type_transc,date} = this.state;
-        const [total_balance_string,color_balance] = this.total_balance_assigner();
         return(
             <>
-                <div className="top-section">
-                    <div className="introducing-header">
-                        <Typed
-                            strings={['Hello Krishna']}
-                            typeSpeed={50}
-                            className={"welcomeHeader"}
-                        />
-                        <p> Your balance  as of <span className="date-span">{date}</span> :</p>
-                        <h1 className={color_balance}>{total_balance_string}</h1>
-                    </div>
-                    <select className= "type_selection"value={type_transc} onChange ={this.change_type}>
-                        <option value="credit">Credit</option>
-                        <option value="debit">Debit</option>
-                        <option value="sub">Subcription</option>
-                        <option value="save">Saving</option>
-                    </select>
-                    <input className="inputs" onChange={this.change_descp}></input>
-                    <input className="inputs" onChange={this.change_transc}></input>
-                    <button className="submit_button" onClick = {this.update_transc}>Submit</button>
-                </div>    
                 <div className='pscontainer RedBG'>
                     <div className="QContainer Transaction_container">
-                        <h1 className="header">Credit</h1>
-                        <Credit onDel= {this.update_after_del} ref={this.c_ref}/>
+                        <h3 className="header">Credit</h3>
+                        <Credit onDel= {this.update_after_del} updateTB = {(type) => {this.updateTotalBalance(type)}} ref={this.c_ref}/>
                     </div>
                     <div className="QContainer Transaction_container">
-                        <h1 className="header">Debit</h1>
-                        <Debit onDel={this.update_after_del} ref={this.d_ref}/>
+                        <h3 className="header">Debit</h3>
+                        <Debit onDel={this.update_after_del} updateTB = {(type) => {this.updateTotalBalance(type)}} ref={this.d_ref}/>
                     </div>
                     <div className="QContainer Transaction_container">
-                        <h1 className="header">Subscription</h1>
-                        <Subscription onDel={this.update_after_del} ref={this.s_ref}/>
+                        <h3 className="header">Subscription</h3>
+                        <Subscription onDel={this.update_after_del} updateTB = {(type) => {this.updateTotalBalance(type)}}ref={this.s_ref}/>
                     </div>
                     <div className="QContainer Transaction_container">
-                        <h1 className="header">Savings</h1>
+                        <h3 className="header">Savings</h3>
                         <Saving onDel={this.update_after_del} target={1000} ref={this.save_ref}/>
                     </div>
                 </div>
@@ -198,6 +194,9 @@ class userInput extends Component{
                         {React.cloneElement( this.props.allexpenseChart , { ref : this.allExpenseChart_ref })}
                     </div>
                     <div className="QContainer Transaction_container">
+                        {React.cloneElement( this.props.debitChart , { ref : this.debitChart_ref })}
+                    </div>
+                    <div className="DQContainer Transaction_container">
                         {React.cloneElement( this.props.debitChart , { ref : this.debitChart_ref })}
                     </div>
                 </div>

@@ -3,7 +3,9 @@ import { Circle, SemiCircle, Line } from 'react-es6-progressbar.js'
 import { CircleContainer } from '../style'
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-
+import 'bootstrap/dist/css/bootstrap.min.css'
+import { Progress } from 'antd'
+import 'antd/dist/antd.css'
 export class CircleChart extends Component {
 
     constructor(props) {
@@ -28,33 +30,18 @@ export class CircleChart extends Component {
         console.log(`The state was updated and render with progress_val : ${progress_val}`);
         return (
             <CircleContainer>
-                <CircularProgressbar 
-                value={progress_val} 
-                maxValue={1} 
-                text={`${progress_val*target}/${target}`}
-                styles={buildStyles({
-                    // Rotation of path and trail, in number of turns (0-1)
-                    rotation: 0,
-                 
-                    // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
-                    strokeLinecap: 'butt',
-                 
-                    // Text size
-                    textSize: '10px',
-                 
-                    // How long animation takes to go from one percentage to another, in seconds
-                    pathTransitionDuration: 0.5,
-                 
-                    // Can specify path transition in more detail, or remove it entirely
-                    // pathTransition: 'none',
-                 
-                    // Colors
-                    pathColor: `rgb(60,179,113,${progress_val})`,
-                    textColor: 'rgb(60,179,113)',
-                    trailColor: '#d6d6d6',
-                    backgroundColor: '#3e98c7',
-                  })}
-                />
+                <div className="chartcontainer right">
+                    <Progress
+                        type="circle"
+                        strokeColor={{
+                            '0%': '#108ee9',
+                            '100%': '#87d068',
+                        }}
+                        width = {250}
+                        percent = {progress_val*100}
+                    />
+                </div>
+                
             </CircleContainer>
         )
     }

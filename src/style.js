@@ -21,7 +21,7 @@ export const TooltipPlace = styled.div`
 
 export const DelButton = styled.button`
     border-radius: 4px;
-    backgroundColor: transparent;
+    background-color: transparent;
 `
 
 export const Key = styled.span`
@@ -68,8 +68,45 @@ export const ToolTipPanel = styled.div`
 
 export const CircleContainer = styled.div`
 
-    width: 75%;
+    width: 100%;
     height: auto;
-    padding: 5% 12.5%;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;  
+    text-align: center; 
 
+`
+export const BgModal = styled.div`
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    position: absolute;
+    top:0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: ${props => props.show ? 'flex' : 'none'};
+
+`
+
+export const ModalContent = styled.div`
+    width : 400px;
+    height: 400px;
+    background-color: white;
+    border-radius : 4px;
+    text-align: center;
+    padding: 20px;
+    position: relative;
+    background: #fff;
+    z-index:100;
+    box-shadow: 5px 10px #888888;
+`
+
+export const Close = styled.div`
+    position: absolute;
+    top : 0;
+    right: 25px;
+    font-size: 22px;
+    cursor: pointer;
 `
