@@ -110,3 +110,30 @@ export const Close = styled.div`
     font-size: 22px;
     cursor: pointer;
 `
+
+export const TopSection = styled.div`
+    background-image: url(${props => props.url});
+    width: 100%;
+    height: 350px;
+    text-align: center;
+    margin-top: -2%;
+    padding: 5%;
+`
+
+export const LargeHeader = styled.h1`
+    font-size: 50px;
+    color: white;
+`
+
+export const NumberHeader = styled.h1`
+
+    color: ${props => (props.color) ? props.color : 'white'}
+
+`
+
+export const TransactionBtn = styled.div`
+
+    padding: 1.25% 2.5%;
+    font-family : Avant Garde Demi BT;
+    
+`

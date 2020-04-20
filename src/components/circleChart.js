@@ -38,6 +38,7 @@ export class CircleChart extends Component {
                             '100%': '#87d068',
                         }}
                         width = {250}
+                        height= {125}
                         percent = {progress_val*100}
                     />
                 </div>

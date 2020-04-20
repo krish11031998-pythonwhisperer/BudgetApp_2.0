@@ -23,11 +23,13 @@ const CreditRouter = require('./routes/credit')
 const DebitRouter = require('./routes/debit')
 const SubscriptionRouter = require('./routes/subscription')
 const SavingRouter = require('./routes/saving')
+const ProductRouter = require('./routes/product')
 
 app.use('/credit',CreditRouter);
 app.use('/debit',DebitRouter);
 app.use('/subs',SubscriptionRouter);
 app.use('/saving',SavingRouter);
+app.use('/product',ProductRouter);
 
 app.listen(port, ()=>{
     console.log(`Server is running on port : ${port}`);

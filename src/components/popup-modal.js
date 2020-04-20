@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css' 
 import { BgModal , ModalContent, Close } from '../style'
-import { DatePicker } from 'antd'
+import { DatePicker, Modal } from 'antd'
 import moment from 'moment'
 import Animate from 'animate.css-react'
 import 'animate.css/animate.css'
@@ -56,6 +56,7 @@ export class PopupModal extends Component {
 
     onChangeShow = () =>{
         this.setState(prevState => {
+            console.log(`The Modal display is at ${prevState.show}`)
             return {
                 show : !prevState.show,
                 type_transc : "credit",
@@ -95,10 +96,7 @@ export class PopupModal extends Component {
     render() {
         let { show, type_transc,transc_amt,description,date } =this.state
         return (
-            <Animate appear="fadeInDown" durationAppear={1000} component="div">
-                <BgModal show={show}>
-                    <ModalContent>
-                        <Close onClick={this.onChangeShow}>x</Close>
+                    <Modal visible={show} onCancel={this.onChangeShow} footer={null} className={"ModalContent"}>
                         <div className="container">
                             <form onSubmit={this.sendUpdate}>
                                 <div className="form-group">
@@ -144,9 +142,7 @@ export class PopupModal extends Component {
                                 </div>
                             </form>
                         </div>
-                    </ModalContent>
-                </BgModal>
-            </Animate>            
+                    </Modal>            
         )
     }
 }

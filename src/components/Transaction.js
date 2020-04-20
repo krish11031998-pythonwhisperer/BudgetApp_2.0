@@ -12,6 +12,10 @@ import CircleChart from './circleChart'
 import Animate from 'animate.css-react'
 import 'animate.css/animate.css'
 import axios from 'axios'
+import { message, Pagination } from 'antd'
+
+const capitalize_word = word => word.split("").map((el,elnum) => (elnum === 0) ? el.toUpperCase() : el).reduce((a,b) => a+b);
+
 const randomcolorgen = (obj) =>{
     var count = 0;
     var colors = [];
@@ -33,11 +37,15 @@ export class Transaction extends Component {
     
         this.state = {
             log : [],
-            recordDelHandler: props.onDel
+            recordDelHandler: props.onDel,
+            startIndex: 0,
+            endIndex : 7
         }
         this.changeShow = this.changeShow.bind(this);
         this.updateTB = this.props.updateTB;
         this.type = undefined;
+        this.changeIndex = this.changeIndex.bind(this);
+
         // this.credit_refs = [];
         // this.debit_refs = [];
     }
@@ -48,7 +56,7 @@ export class Transaction extends Component {
         axios.delete(`${this.url}/delete/${id}`,{
             param : { id : id }
         }).then(() => {
-                this.updateLogAfterRequest();
+                this.updateLogAfterRequest('Remove');
             })
             .catch(() => {
                 console.log(`There was an error`);
@@ -77,10 +85,14 @@ export class Transaction extends Component {
         return this.state.log
     }
 
+    get logLength() {
+        return this.state.log.length
+    }
+
     total_amt = () =>{
         return (this.log().length  > 0) ? this.log().map(el => el.amt).reduce((a,b) => parseFloat(a)+parseFloat(b)) : 0;
     }
-    updateLogAfterRequest(){
+    updateLogAfterRequest(type){
         axios.get(`${this.url}/`)
             .then(res => {
                 console.log(`Result from the get call is ${res.data} for ${this.type} transaction`);
@@ -89,15 +101,31 @@ export class Transaction extends Component {
                 },() => {
                     console.log(`Updated the log`)
                     this.updateTB(this.type);
+                    if(type === 'Add'){
+                        message.success(`Successfully added to the ${capitalize_word(this.type)}`)
+                    }
+                    else if (type === 'Remove'){
+                        message.warning(`Removed from ${capitalize_word(this.type)}`)
+                    }
                 });
             })
             .catch(() => {console.log(`There was an error`)})
     }
 
+    changeIndex(e){
+        this.setState({
+            startIndex : (e-1)*8,
+            endIndex: e*8-1
+        },() => {
+            console.log(`StartIndex ${this.state.startIndex} and EndIndex ${this.state.endIndex}`);
+        })
+    }
+
     addtrans_log(new_log){
         axios.post(`${this.url}/add`,new_log)
             .then(() => {
-                this.updateLogAfterRequest()
+                this.updateLogAfterRequest('Add');
+
             })
             .catch(() => {console.log(`There was an error!`)});
     }
@@ -129,10 +157,9 @@ class Credit extends Transaction{
             .catch(() => {console.log(`There was an error`)});
     }
     
-    
 
     render() {
-        const {log} = this.state;
+        const {log,startIndex,endIndex} = this.state;
         return (
             <div>
                 <Animate enter="bounceIn" // on Enter animation
@@ -141,7 +168,7 @@ class Credit extends Transaction{
                         change="flipInX"
                         component="ul"
                         className="transaction-list">
-                    {log.map((el,elnum)=>{
+                    {log.filter((el,elnum) => (elnum >= startIndex &&  elnum<=endIndex)).map((el,elnum)=>{
                         let id = el._id;
                         let li_style = (elnum % 2 === 0) ? "lightli" : "darkli";
                         var ref = React.createRef();
@@ -150,6 +177,7 @@ class Credit extends Transaction{
                         return <li key={key} id={key} className={`${li_style}`}  ><MdAddCircle className="addCircle" color="Green"/><span id={key} onMouseOver={(event) => {this.changeShow(event)}} onMouseOut={(event)=>{this.changeShow(event)}} className="textAlign: absolute-center;"><span className="transaction-text">{el.description}</span><span className='amt-text'>{el.amt}<MdClose onClick={() => {this.removeRecord(id)}} className="closeCircle"/></span></span><TrancDetails details={el} type={this.type} ref={ref}/></li>
                     })}
                 </Animate>
+                <Pagination className={"paginationAlign"} size="small" defaultCurrent = {1} defaultPageSize={8} onChange={this.changeIndex} total={this.logLength}/>
             </div>
         )
     }
@@ -247,7 +275,7 @@ class Debit extends Transaction{
     }
 
     render() {
-        const {log} = this.state;
+        const {log,startIndex,endIndex} = this.state;
         return (
             <>
                 <Animate enter="bounceIn" // on Enter animation
@@ -256,13 +284,14 @@ class Debit extends Transaction{
                         change="flipInX"
                         component="ul"
                         className="transaction-list">
-                    {log.map((el,elnum)=>{
+                    {log.filter((el,elnum) => (elnum >= startIndex &&  elnum<=endIndex)).map((el,elnum)=>{
                         let li_style = (elnum % 2 === 0) ? "lightli" : "darkli";
                         var ref = React.createRef();
                         this.debit_refs.push(ref);
                         return <li key={`debit_${elnum}`} id={`debit_${elnum}`} className={`${li_style}`}  onMouseOver={(event) => {this.changeShow(event)}} onMouseOut={(event)=>{this.changeShow(event)}}><MdRemoveCircle className="removeCircle" color="Red"/><span id={`debit_${elnum}`} className="textAlign: absolute-center;"><span className="transaction-text">{el.description}</span><span className='amt-text'>{el.amt}<MdClose onClick={() => {this.removeRecord(el._id)}} className="closeCircle"/></span></span><TrancDetails details={el} type={this.type} ref={ref}/></li>
                     })}
                 </Animate>
+                <Pagination className={"paginationAlign"} size="small" defaultCurrent = {1} defaultPageSize={8} onChange={this.changeIndex} total={this.logLength}/>
             </>
         )
     }
@@ -309,7 +338,7 @@ class Subscription extends Transaction{
     }
 
     render() {
-        const {log} = this.state;
+        const {log,startIndex,endIndex} = this.state;
         return (
             <>
                 <Animate enter="bounceIn" // on Enter animation
@@ -318,16 +347,14 @@ class Subscription extends Transaction{
                         change="flipInX"
                         component="ul"
                         className="transaction-list">
-                    {log.map((el,elnum)=>{
+                    {log.filter((el,elnum) => (elnum >= startIndex &&  elnum<=endIndex)).map((el,elnum)=>{
                             let li_style = (elnum % 2 === 0) ? "lightli" : "darkli";
                             var ref = React.createRef();
                             this.subs_refs.push(ref);
                         return <li key={`subs_${elnum}`} id={`subs_${elnum}`}  className={`${li_style}`} onMouseOver={(event) => {this.changeShow(event)}} onMouseOut={(event)=>{this.changeShow(event)}}><MdRemoveCircle className="removeCircle" color="Orange"/><span id={`subs_${elnum}`} className="textAlign: absolute-center;"><span className="transaction-text">{el.description}</span><span className='amt-text'>{el.amt}<MdClose onClick={() => {this.removeRecord(el._id)}} className="closeCircle"/></span></span><TrancDetails details={el} type={this.type} ref={ref}/></li>
                         })}
                 </Animate>
-                {/* <ul className="transaction-list"> */}
-                    
-                {/* </ul> */}
+                <Pagination className={"paginationAlign"} size="small" defaultCurrent = {1} onChange={this.changeIndex}  defaultPageSize={8} total={this.logLength}/>
             </>
         )
     }
