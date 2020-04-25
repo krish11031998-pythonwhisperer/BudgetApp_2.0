@@ -1,5 +1,6 @@
 import React, { Component, Children } from 'react'
 import { Credit, Debit, Subscription, Saving } from './Transaction'
+import LineChart from './lineCharts'
 import '../style.css'
 import { Pagination } from 'antd'
 import Typed from 'react-typed'
@@ -18,6 +19,7 @@ class userInput extends Component{
         this.d_ref = React.createRef();
         this.s_ref = React.createRef();
         this.save_ref = React.createRef();
+        this.linechart_ref = React.createRef();
         this.allExpenseChart_ref = React.createRef();
         this.debitChart_ref = React.createRef();
         this.state = {
@@ -52,7 +54,8 @@ class userInput extends Component{
                 hoverBorderColor:'black'
             }],
         });
-        this.debitChart_ref.current.updateChartData(this.d_ref.current.getTransaction(false));
+        this.linechart_ref.current.updateLog(this.d_ref.current.log());
+        this.debitChart_ref.current.updateChartData(this.d_ref.current.getTransaction(false));   
     }
 
 
@@ -95,6 +98,7 @@ class userInput extends Component{
         console.log(d_arr,s_arr);
         return [(d_arr.length > 0) ? d_arr.reduce((a,b) => parseFloat(a)+parseFloat(b)) : 0 , (s_arr.length > 0) ? s_arr.reduce((a,b) => parseFloat(a)+parseFloat(b)) : 0]
     }
+
 
     update_transc(transc_obj){
         const {type,amt,description,date} = transc_obj;
@@ -189,7 +193,7 @@ class userInput extends Component{
                     </div>
                     <div className="QContainer Transaction_container">
                         <h3 className="header">Savings</h3>
-                        <Saving onDel={this.update_after_del} target={1000} ref={this.save_ref}/>
+                        <Saving onDel={this.update_after_del} target={100000} ref={this.save_ref}/>
                     </div>
                 </div>
                 <div className='pscontainer'>
@@ -199,9 +203,9 @@ class userInput extends Component{
                     <div className="QContainer Transaction_container">
                         {React.cloneElement( this.props.debitChart , { ref : this.debitChart_ref })}
                     </div>
-                    {/* <div className="DQContainer Transaction_container">
-                        {React.cloneElement( this.props.debitChart , { ref : this.debitChart_ref })}
-                    </div> */}
+                    <div className="DQContainer Transaction_container">
+                        <LineChart ref={this.linechart_ref}/>
+                    </div>
                 </div>
             </>
         )

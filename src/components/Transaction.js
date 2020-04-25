@@ -39,7 +39,8 @@ export class Transaction extends Component {
             log : [],
             recordDelHandler: props.onDel,
             startIndex: 0,
-            endIndex : 7
+            endIndex : 7,
+            curr_log : []
         }
         this.changeShow = this.changeShow.bind(this);
         this.updateTB = this.props.updateTB;
@@ -113,9 +114,12 @@ export class Transaction extends Component {
     }
 
     changeIndex(e){
-        this.setState({
-            startIndex : (e-1)*8,
-            endIndex: e*8-1
+        this.setState(prevState => {
+            return {
+                startIndex : (e-1)*8,
+                endIndex: e*8-1,
+                curr_log : prevState.log.filter((_,elnum) => (elnum <= e*8-1 && elnum >= (e-1)*8))
+            }
         },() => {
             console.log(`StartIndex ${this.state.startIndex} and EndIndex ${this.state.endIndex}`);
         })
@@ -145,8 +149,11 @@ class Credit extends Transaction{
     componentDidMount(){
         axios.get(`${this.url}/`)
             .then(res =>{
-                this.setState({
-                    log: res.data
+                this.setState(prevState => {
+                    return {
+                        log: res.data,
+                        curr_log : res.data.filter((_,elnum) => (elnum <= prevState.endIndex))
+                    }
                 },()=>{
                     console.log(`Updated the log : ${this.state.log}`);
                     let gross_amt = (this.state.log.length > 0) ? parseFloat(this.state.log.map(el => parseFloat(el.amt)).reduce((a,b) => a+b)) : 0;
@@ -159,7 +166,7 @@ class Credit extends Transaction{
     
 
     render() {
-        const {log,startIndex,endIndex} = this.state;
+        const {log,startIndex,endIndex,curr_log} = this.state;
         return (
             <div>
                 <Animate enter="bounceIn" // on Enter animation
@@ -168,7 +175,7 @@ class Credit extends Transaction{
                         change="flipInX"
                         component="ul"
                         className="transaction-list">
-                    {log.filter((el,elnum) => (elnum >= startIndex &&  elnum<=endIndex)).map((el,elnum)=>{
+                    {curr_log.map((el,elnum)=>{
                         let id = el._id;
                         let li_style = (elnum % 2 === 0) ? "lightli" : "darkli";
                         var ref = React.createRef();
@@ -198,7 +205,7 @@ class Saving extends Transaction{
         axios.get(`${this.url}/`)
             .then(res =>{
                 this.setState({
-                    log: res.data
+                        log: res.data
                 },()=>{console.log(`Updated the log : ${this.state.log}`);this.updateChart()})
             })
             .catch(() => {console.log(`There was an error`)});
@@ -246,8 +253,11 @@ class Debit extends Transaction{
     componentDidMount(){
         axios.get(`${this.url}/`)
             .then(res =>{
-                this.setState({
-                    log: res.data
+                this.setState(prevState => {
+                    return {
+                        log: res.data,
+                        curr_log : res.data.filter((_,elnum) => (elnum <= prevState.endIndex))
+                    }
                 },()=>{
                     console.log(`Updated the log : ${this.state.log}`);
                     let gross_amt = (this.state.log.length > 0) ? parseFloat(this.state.log.map(el => parseFloat(el.amt)).reduce((a,b) => a+b)) : 0;
@@ -275,7 +285,7 @@ class Debit extends Transaction{
     }
 
     render() {
-        const {log,startIndex,endIndex} = this.state;
+        const {log,startIndex,endIndex,curr_log} = this.state;
         return (
             <>
                 <Animate enter="bounceIn" // on Enter animation
@@ -284,7 +294,7 @@ class Debit extends Transaction{
                         change="flipInX"
                         component="ul"
                         className="transaction-list">
-                    {log.filter((el,elnum) => (elnum >= startIndex &&  elnum<=endIndex)).map((el,elnum)=>{
+                    {curr_log.map((el,elnum)=>{
                         let li_style = (elnum % 2 === 0) ? "lightli" : "darkli";
                         var ref = React.createRef();
                         this.debit_refs.push(ref);
@@ -310,8 +320,11 @@ class Subscription extends Transaction{
     componentDidMount(){
         axios.get(`${this.url}/`)
             .then(res =>{
-                this.setState({
-                    log: res.data
+                this.setState(prevState => {
+                    return {
+                        log: res.data,
+                        curr_log : res.data.filter((_,elnum) => (elnum <= prevState.endIndex))
+                    }
                 },()=>{
                     console.log(`Updated the log : ${this.state.log}`);
                     let gross_amt = (this.state.log.length > 0) ? parseFloat(this.state.log.map(el => parseFloat(el.amt)).reduce((a,b) => a+b)) : 0;
@@ -338,7 +351,7 @@ class Subscription extends Transaction{
     }
 
     render() {
-        const {log,startIndex,endIndex} = this.state;
+        const {log,startIndex,endIndex,curr_log} = this.state;
         return (
             <>
                 <Animate enter="bounceIn" // on Enter animation
@@ -347,7 +360,7 @@ class Subscription extends Transaction{
                         change="flipInX"
                         component="ul"
                         className="transaction-list">
-                    {log.filter((el,elnum) => (elnum >= startIndex &&  elnum<=endIndex)).map((el,elnum)=>{
+                    {curr_log.map((el,elnum)=>{
                             let li_style = (elnum % 2 === 0) ? "lightli" : "darkli";
                             var ref = React.createRef();
                             this.subs_refs.push(ref);

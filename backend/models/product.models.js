@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema
 const ProductModel = new Schema({
+    url : {type:"String",required:true},
     name: {type:"String",required:true},
     currency: {type:"String",required:true},
     info:{type:"String",required:true},

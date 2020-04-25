@@ -95,8 +95,6 @@ export class ProductModal extends Component {
                                             value={saving_timeframe} 
                                             onChange={this.changeSavingTimeframe} />
                                 </div>
-                            
-                        
                                 <div>
                                     <input type="submit" value="Add" className="btn btn-primary"/>
                                 </div>

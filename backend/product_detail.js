@@ -5,23 +5,23 @@ class ProductDetails{
 
     constructor(url){
         this.url = url;
+        this.different_tags = ['#priceblock_ourprice','#priceblock_dealprice']
     }
 
     async getDetails(){
         await this.getHTML().then( data => {
             this.data = data;
             this.getAmazonTitle(data).then(title => {
-                console.log(`Title : ${title}`)
+                // console.log(`Title : ${title}`)
                 this.title = title
             })
-            this.getAmazonPrice(data).then(price => {
-                console.log(`Price : ${price} ${price.split(";")}}`)
-                let [currency,price_] = price.split(";");
-                this.price = price_.split(",").reduce((a,b) => a+b);
-                console.log(`this.price:${this.price}`); 
-                this.currency = currency.split("&")[0]
-                console.log(`this.currency:${this.currency}`);
-            })
+            let price = this.getAmazonPrice(data)
+            console.log(`Price : ${price} ${price.split(";")}`)
+            let [currency,price_] = price.split(";");
+            this.price = price_.split(",").reduce((a,b) => a+b);
+            console.log(`this.price:${this.price}`); 
+            this.currency = currency.split("&")[0]
+            console.log(`this.currency:${this.currency}`);
         });
         return {"title":this.title,"price":this.price,"currency":this.currency}
     }
@@ -48,10 +48,16 @@ class ProductDetails{
 
     }
 
-    async getAmazonPrice(data){
-        let price = String(cheerio.load(data)('#priceblock_ourprice').html());
-        console.log(`Price of the product is ${this.price}`);
-        return(price);
+    getAmazonPrice(data,id=0){
+        let price = String(cheerio.load(data)(this.different_tags[id]).html());
+        console.log(`Price of the product is ${price}`);
+        if (price !== undefined){
+            return(price);
+        }
+        else if(id <= this.different_tags.length && price === undefined){
+            return this.getAmazonPrice(data,id+1);
+        }
+        
     }
 
 }
