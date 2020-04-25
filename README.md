@@ -4,7 +4,7 @@
 
 A Simple budget app that allows the user to tracking their credits , debits , subscription and savings. Along with few fancy features for visualisation purposes and tracking purposes.
 
-Idea of this app is to help students track their expenses and credits , while helping them save while providing them a tracking window to track the products they wish to purchase from e-Commerce websites like Amazon (only support for now).
+Idea of this app is to help students track their expenses and credits , while helping them save money and provide them a tracking window to track the products they wish to purchase from e-Commerce websites like Amazon (only support for now).
 
 ### Features
 
