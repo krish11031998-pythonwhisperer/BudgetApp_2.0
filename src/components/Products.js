@@ -76,7 +76,7 @@ class Products extends Component {
         console.log(price,prev_price);
         let diff = prev_price - price;
         let color = (diff >= 0) ? 'green' : 'volcano';
-        let percent = `${(diff>0) ? '+' : (diff === 0) ? '' : '-'} ${Math.abs(diff/prev_price)}%`;
+        let percent = `${(diff>0) ? '+' : (diff === 0) ? '' : '-'} ${Number.parseFloat(Math.abs(diff/prev_price)*100).toPrecision(3)}%`;
         return (
             <Tag color={color}>
                 {percent}
@@ -111,9 +111,13 @@ class Products extends Component {
                 key:"saving_timeframe"
             },
             {
-                title: "Updated",
-                dataIndex : 'prev_price',
-                key: "prev_price",
+                title: "Previously",
+                dataIndex:'prev_price',
+                key: "prev_price"
+            },
+            {
+                title: "Saving",
+                dataIndex : 'updated',
                 render : (text,record) => (
                     <span>
                         {this.calcPercent(record.price,record.prev_price)}

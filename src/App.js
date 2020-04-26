@@ -137,7 +137,7 @@ class App extends Component{
           </TopSection>
         </Carousel>
         <TransactionBtn>
-          <Fab color="blue" aria-label="add" onClick={this.showModal}>
+          <Fab color="blue" aria-label="add" onClick={() => {this.showModal()}}>
             <AddCircleIcon/>
           </Fab>
          <span className="TBText">Add Transaction</span>

@@ -15,15 +15,19 @@ export class LineChart extends Component {
         console.log(`month : ${this.month}`);
     }
 
-    // componentDidMount(){
-    //     this.setState({
-    //         log : this.props.log
-    //     },() => {
-    //         if(this.state.log){
-    //             this.updateMonthly();
-    //         }
-    //     })
-    // }
+    componentDidMount(){
+        if(this.props.log){
+            this.setState({
+                log : this.props.log
+            },() => {
+                this.updateMonthly();
+            })
+        }
+        else{
+            this.monthly = Array(12).fill(0);
+        }
+        
+    }
 
     updateLog(log){
         console.log(`This is the provided ${log}`);

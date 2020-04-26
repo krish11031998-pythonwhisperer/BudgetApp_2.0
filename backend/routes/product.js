@@ -58,13 +58,16 @@ router.route('/updateprice').post((req,res)=>{
                     console.log(`Updating the product log details`);
                     let productDetails = new ProductDetails(url);
                     productDetails.getDetails().then(data => {
-                        let {price:newPrice} = data;            
-                        product.price = newPrice;
-                        product.prev_price = price;
+                        let {price:newPrice} = data;
+                        console.log(price,newPrice);
+                        if(newPrice != parseFloat(price)){
+                            product.price = newPrice;
+                            product.prev_price = price;
                         // console.log(`\nUpdated product log : ${JSON.stringify(product)}`)
-                        product.save()
+                            product.save()
                             .then(() => console.log(`Sucessfully updated the product`))
                             .catch(err => res.status(400).json(`Error : ${err}`))
+                        }            
                     });
                     
                 } 

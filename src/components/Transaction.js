@@ -39,7 +39,7 @@ export class Transaction extends Component {
             log : [],
             recordDelHandler: props.onDel,
             startIndex: 0,
-            endIndex : 7,
+            endIndex : 9,
             curr_log : []
         }
         this.changeShow = this.changeShow.bind(this);
@@ -97,8 +97,12 @@ export class Transaction extends Component {
         axios.get(`${this.url}/`)
             .then(res => {
                 console.log(`Result from the get call is ${res.data} for ${this.type} transaction`);
-                this.setState({
-                    log : res.data
+                this.setState(prevState => {
+                    return{
+                        log : res.data,
+                        curr_log : Array(res.data).slice(prevState.startIndex,prevState.endIndex)
+                    }
+
                 },() => {
                     console.log(`Updated the log`)
                     this.updateTB(this.type);
@@ -116,9 +120,9 @@ export class Transaction extends Component {
     changeIndex(e){
         this.setState(prevState => {
             return {
-                startIndex : (e-1)*8,
-                endIndex: e*8-1,
-                curr_log : prevState.log.filter((_,elnum) => (elnum <= e*8-1 && elnum >= (e-1)*8))
+                startIndex : (e-1)*10,
+                endIndex: e*10-1,
+                curr_log : prevState.log.filter((_,elnum) => (elnum <= e*10-1 && elnum >= (e-1)*10))
             }
         },() => {
             console.log(`StartIndex ${this.state.startIndex} and EndIndex ${this.state.endIndex}`);

@@ -55,9 +55,10 @@ export class Charts extends Component {
                         <Doughnut
                             data={ chartdata }
                                 width={100}
-                                height={50}
+                                height={100}
                                 options={{legend:this.state.legendDisplay,padding: this.state.padding}}
                         />
+
                     </div>
                 </div>
                 
